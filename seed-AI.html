@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>唤醒沉睡的种子 - 种子学AI训练工具（增强版）</title>
+  <style>
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      background: linear-gradient(to bottom, #e3f2fd, #ffffff);
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #1b5e20;
+    }
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+    #result {
+      margin-top: 25px;
+      font-size: 17px;
+      min-height: 120px;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: left;
+    }
+    .success { 
+      color: #2e7d32; 
+      background-color: #e8f5e9;
+      border-left: 4px solid #4caf50;
+    }
+    .fail { 
+      color: #c62828; 
+      background-color: #ffebee;
+      border-left: 4px solid #f44336;
+    }
+    .knowledge {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #9e9e9e;
+      font-style: italic;
+      color: #5d4037;
+    }
+    .seed {
+      font-size: 60px;
+      margin: 20px 0;
+      transition: transform 1s;
+    }
+    .sprout {
+      animation: grow 2s forwards;
+    }
+    @keyframes grow {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.4); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🌱 唤醒沉睡的种子（增强教学版）</h1>
+  <p>设置光照、温度与赤霉素浓度，帮助深休眠种子打破休眠！</p>
+
+  <label for="light">光照条件</label>
+  <select id="light">
+    <option value="dark">完全黑暗</option>
+    <option value="white">持续白光</option>
+    <option value="red">红光照射（660nm）</option>
+    <option value="alternating">明暗交替（12h/12h）</option>
+  </select>
+
+  <label for="temp">温度处理（℃）</label>
+  <select id="temp">
+    <option value="constant25">恒温 25°C</option>
+    <option value="constant5">恒温 5°C</option>
+    <option value="diurnal">变温（20°C昼 / 10°C夜）</option>
+    <option value="stratification">低温层积（4周，2–5°C）</option>
+  </select>
+
+  <label for="ga">赤霉素（GA₃）浓度（ppm）</label>
+  <input type="number" id="ga" min="0" max="500" placeholder="例如：100" value="0">
+
+  <button onclick="simulate()">尝试唤醒种子</button>
+
+  <div class="seed" id="seed">🫘</div>
+  <div id="result"></div>
+</div>
+
+<script>
+  function simulate() {
+    const light = document.getElementById("light").value;
+    const temp = document.getElementById("temp").value;
+    const ga = parseFloat(document.getElementById("ga").value) || 0;
+
+    // 参数解释映射（用于反馈）
+    const lightText = {
+      dark: "完全黑暗",
+      white: "持续白光",
+      red: "红光照射（660nm）",
+      alternating: "明暗交替（12h/12h）"
+    };
+    const tempText = {
+      constant25: "恒温 25°C",
+      constant5: "恒温 5°C",
+      diurnal: "变温（20°C昼 / 10°C夜）",
+      stratification: "低温层积（4周，2–5°C）"
+    };
+
+    // 判断条件
+    const goodLight = (light === "red" || light === "alternating");
+    const goodTemp = (temp === "diurnal" || temp === "stratification");
+    const goodGA = (ga >= 50 && ga <= 200);
+
+    let success = false;
+    let reason = "";
+    let knowledge = "";
+
+    // 成功逻辑
+    if ((goodLight && goodTemp) || (goodLight && goodGA) || (goodTemp && goodGA)) {
+      success = true;
+      reason = `✅ 成功唤醒！<br>您设置了：<br>• 光照：${lightText[light]}<br>• 温度：${tempText[temp]}<br>• GA浓度：${ga} ppm<br><br>这些信号协同作用，有效打破了种子的深休眠。`;
+      
+      // 知识点
+      knowledge = "📘 <strong>知识要点：</strong><br>" +
+        "• 深休眠种子常需<strong>红光或变温</strong>激活光敏色素或解除ABA抑制；<br>" +
+        "• 赤霉素（GA）可诱导α-淀粉酶合成，启动胚乳分解，是打破休眠的关键激素。";
+    } else {
+      // 失败原因分析
+      let issues = [];
+      if (!goodLight) issues.push("光照条件不足（深休眠种子通常需要红光或明暗交替）");
+      if (!goodTemp) issues.push("温度处理不当（缺乏变温或低温层积）");
+      if (!goodGA) {
+        if (ga < 50) issues.push("赤霉素浓度过低（<50 ppm），不足以诱导萌发");
+        else if (ga > 200) issues.push("赤霉素浓度过高（>200 ppm），可能产生抑制效应");
+      }
+
+      reason = `❌ 唤醒失败！<br>您设置了：<br>• 光照：${lightText[light]}<br>• 温度：${tempText[temp]}<br>• GA浓度：${ga} ppm<br><br>问题分析：<br>• ${issues.join('<br>• ')}`;
+      
+      knowledge = "📘 <strong>知识要点：</strong><br>" +
+        "• 深休眠种子对环境信号高度敏感，单一适宜因子往往不足以打破休眠；<br>" +
+        "• 典型深休眠种子（如苹果、莴苣）需<strong>光+温+激素</strong>协同作用才能启动萌发程序。";
+    }
+
+    // 更新界面
+    const resultDiv = document.getElementById("result");
+    const seedEmoji = document.getElementById("seed");
+
+    resultDiv.innerHTML = reason + "<div class='knowledge'>" + knowledge + "</div>";
+    resultDiv.className = success ? "success" : "fail";
+
+    if (success) {
+      seedEmoji.textContent = "🌱";
+      seedEmoji.classList.add("sprout");
+    } else {
+      seedEmoji.textContent = "🫘";
+      seedEmoji.classList.remove("sprout");
+    }
+  }
+</script>
+
+</body>
+</html>
